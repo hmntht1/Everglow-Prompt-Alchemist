@@ -31,6 +31,7 @@ HTML_TEMPLATE = """
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Everglow - The Magic Alchemist (Python)</title>
 
+    <!-- External Dependencies: Fonts and Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&amp;display=swap" rel="stylesheet">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/thin/style.css">
@@ -39,6 +40,7 @@ HTML_TEMPLATE = """
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/fill/style.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/duotone/style.css">
 
+    <!-- INLINE CSS: All necessary styles are embedded here -->
     <style>
         /* CSS Variables */
         :root {
@@ -250,11 +252,13 @@ HTML_TEMPLATE = """
                 Whisper your **Spell**, or upload an image to refine its essence.
             </p>
             
+            <!-- UPLOAD FIX: Wrap button and input in a container -->
             <div class="w-full pt-4 pb-2">
                 <div class="upload-container">
                     <button id="upload-button" class="w-full flex items-center justify-center font-semibold py-3 px-6 rounded-xl transition-all duration-300 transform hover:scale-[1.02] btn-accent">
                         <i class="ph ph-upload-simple text-xl mr-2"></i> Upload Image
                     </button>
+                    <!-- File input is now overlaid on the button -->
                     <input type="file" id="image-input" accept="image/*">
                 </div>
             </div>
@@ -306,6 +310,7 @@ HTML_TEMPLATE = """
         
     </div>
 
+    <!-- Modal remains hidden by default -->
     <div id="beautify-modal-backdrop" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-md hidden z-[100] flex items-center justify-center p-4">
         <div id="beautify-modal" class="floating-card p-6 rounded-xl w-full max-w-sm text-center space-y-4 border-2" style="background-color: #1a1a3a; border-color: var(--accent-pink);">
             
@@ -327,6 +332,7 @@ HTML_TEMPLATE = """
         </div>
     </div>
     
+    <!-- JavaScript for Canvas Preview, UI Logic, and Flask API Calls -->
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             // Element references
@@ -573,7 +579,7 @@ def enchant():
                 )
             )
             
-            # Extract image data from the response
+            # Process response from imagen-4.0-generate-001
             if gemini_response.generated_images and gemini_response.generated_images[0].image.image_bytes:
                 generated_image_data = gemini_response.generated_images[0].image.image_bytes
             else:
@@ -593,6 +599,5 @@ def enchant():
         return jsonify({"success": False, "message": f"An API or processing error occurred: {str(e)}"}), 500
 
 # --- 4. RUNNER ---
-if __name__ == '__main__':
-    # Local development runner
-    app.run(debug=True)
+# NOTE: The app.run(debug=True) call has been removed.
+# Gunicorn (as defined in Procfile) will run the 'app' variable when deployed.
