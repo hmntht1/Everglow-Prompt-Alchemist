@@ -551,14 +551,10 @@ def index():
 @app.route('/status')
 def status_check():
     """Simple route to check if the Python server is actively running."""
-    # We don't call get_gemini_client() here to prevent unnecessary initialization
-    # but we check if the API key is present in the environment
-    api_key_status = "Set" if os.environ.get("GEMINI_API_KEY") else "NOT SET"
-    
     # We try to initialize the client here to provide a status on the health check page
     client_status = get_gemini_client() is not None
     
-    status = "OK" if client_status else f"CRITICAL (API Key Status: {api_key_status})"
+    status = "OK" if client_status else f"CRITICAL (API Key Status: {'SET' if os.environ.get('GEMINI_API_KEY') else 'NOT SET'})"
     
     return f"Server Status: {status} - Python {sys.version}", 200
 
@@ -630,4 +626,3 @@ def enchant():
     
 # --- 4. RUNNER ---
 # The Flask instance must be named 'app' for Gunicorn to find it via Procfile.
-# The `create_app` function is no longer needed globally, as all logic is now defined on the Flask instance 'app'.
