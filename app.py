@@ -4,25 +4,28 @@ import os
 import io
 from google import genai
 from PIL import Image
+import sys
 
 # --- 1. PYTHON FLASK SETUP AND GEMINI CLIENT ---
 app = Flask(__name__)
+print(f"App initialization started. Python version: {sys.version}")
 
 # Initialize Gemini Client using an environment variable for the API key
-# The hosting platform MUST set the GEMINI_API_KEY environment variable.
 try:
     API_KEY = os.environ.get("GEMINI_API_KEY")
     if not API_KEY:
-        print("WARNING: GEMINI_API_KEY not set. API calls will fail.")
+        print("CRITICAL: GEMINI_API_KEY environment variable is NOT set.")
         client = None
     else:
         # Client initialized successfully with the key from environment variable
         client = genai.Client(api_key=API_KEY) 
+        print("Gemini client initialized successfully.")
 except Exception as e:
-    print(f"Error initializing Gemini client: {e}")
+    print(f"CRITICAL: Error initializing Gemini client: {e}")
     client = None
 
 # --- 2. HTML TEMPLATE (Contains all HTML, CSS, and Client-side JS) ---
+# (The long HTML_TEMPLATE definition remains here, unchanged)
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -531,7 +534,15 @@ HTML_TEMPLATE = """
 @app.route('/')
 def index():
     """Serves the main HTML application."""
+    # This will now include logging in the host console
+    print("Serving root page '/'.")
     return render_template_string(HTML_TEMPLATE)
+
+@app.route('/status')
+def status_check():
+    """Simple route to check if the Python server is actively running."""
+    status = "OK" if client else "CRITICAL (API Client Failed)"
+    return f"Server Status: {status} - Python {sys.version}", 200
 
 @app.route('/api/enchant', methods=['POST'])
 def enchant():
@@ -549,7 +560,7 @@ def enchant():
         if not prompt and not image_base64:
             return jsonify({"success": False, "message": "Prompt or image data is required."}), 400
 
-        # --- Base64 Decoding and Image Preparation ---
+        # --- Base64 Decoding and Image Preparation (Logic Unchanged) ---
         if image_base64:
             # Image-to-Image editing (using gemini-2.5-flash-image-preview)
             image_bytes = base64.b64decode(image_base64)
@@ -599,5 +610,4 @@ def enchant():
         return jsonify({"success": False, "message": f"An API or processing error occurred: {str(e)}"}), 500
 
 # --- 4. RUNNER ---
-# NOTE: The app.run(debug=True) call has been removed.
-# Gunicorn (as defined in Procfile) will run the 'app' variable when deployed.
+# Gunicorn will run the 'app' variable when deployed via Procfile.
